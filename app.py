@@ -19,5 +19,5 @@ iface = gr.Interface(
     title="Mental Health Tracker 🧠💖"
 )
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     iface.launch(server_name="0.0.0.0", server_port=10000)
