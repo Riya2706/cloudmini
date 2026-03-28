@@ -5,7 +5,7 @@ import numpy as np
 def predict(*inputs):
     # This simulates a result so your UI actually works
     # You can change the text below to whatever you want
-    return "Prediction: Stable Mental Health. You are doing great! 🌟"
+    return "Prediction: Stable Mental Health. You are doing great! "
 
 # UI
 iface = gr.Interface(
@@ -16,7 +16,7 @@ iface = gr.Interface(
         gr.Number(label="Input 3")
     ],
     outputs="text",
-    title="Mental Health Tracker 🧠💖"
+    title="Mental Health Tracker "
 )
 
 if __name__ == "__main__":
