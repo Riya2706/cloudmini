@@ -1,72 +1,31 @@
-import numpy as np
-import pandas as pd
-from sklearn.linear_model import LogisticRegression
-from flask import Flask, request, jsonify
 import gradio as gr
 
-# -------------------------------
-# Dummy Training Data (replace later if needed)
-# -------------------------------
-# 42 DASS questions → values 0–3
-X = np.random.randint(0, 4, (100, 42))
-
-# Labels: 0 = Normal, 1 = Mild, 2 = Severe
-y = np.random.randint(0, 3, 100)
-
-model = LogisticRegression(max_iter=200)
-model.fit(X, y)
-
-# -------------------------------
-# Prediction Function
-# -------------------------------
-def predict(*inputs):
-    data = np.array(inputs).reshape(1, -1)
-    pred = model.predict(data)[0]
-
-    if pred == 0:
-        return "Normal 😊"
-    elif pred == 1:
-        return "Mild ⚠️"
+# This function handles the logic that replaces the .pkl file
+def predict_mental_health(anxiety, stress, sleep):
+    # Calculate average: 1-2 is Stable, 3-4 is Severe
+    avg_score = (float(anxiety) + float(stress) + float(sleep)) / 3
+    
+    if avg_score >= 3.0:
+        return "Prediction: Severe Mental Health. Please seek professional support soon. ❤️"
+    elif avg_score >= 2.0:
+        return "Prediction: Moderate Stress. Consider self-care or talking to a friend. 🌿"
     else:
-        return "Severe ❗ Please consult a professional"
+        return "Prediction: Stable Mental Health. You are doing great! 🌟"
 
-# -------------------------------
-# Gradio UI (Frontend)
-# -------------------------------
-inputs = []
-for i in range(42):
-    inputs.append(gr.Slider(0, 3, step=1, label=f"Q{i+1}"))
-
-gradio_app = gr.Interface(
-    fn=predict,
-    inputs=inputs,
+# Creating the User Interface
+app = gr.Interface(
+    fn=predict_mental_health,
+    inputs=[
+        gr.Slider(1, 4, step=1, label="Anxiety Level (1: Low, 4: High)"),
+        gr.Slider(1, 4, step=1, label="Stress Level (1: Low, 4: High)"),
+        gr.Slider(1, 4, step=1, label="Sleep Quality (1: Good, 4: Poor)")
+    ],
     outputs="text",
-    title="Mental Health Tracker (DASS Based)"
+    title="Mental Health Tracker 🧠",
+    description="Slide to select your levels and click Submit."
 )
 
-# -------------------------------
-# Flask Backend
-# -------------------------------
-app = Flask(_name_)
-
-@app.route("/")
-def home():
-    return "Mental Health Tracker API Running"
-
-@app.route("/predict", methods=["POST"])
-def api_predict():
-    data = request.json["inputs"]
-    prediction = predict(*data)
-    return jsonify({"result": prediction})
-
-# -------------------------------
-# Run both Flask + Gradio
-# -------------------------------
+# Crucial for Render deployment
 if _name_ == "_main_":
-    import threading
+    app.launch(server_name="0.0.0.0", server_port=10000)
 
-    def run_gradio():
-        gradio_app.launch(share=True)
-
-    threading.Thread(target=run_gradio).start()
-    app.run(port=5000)
